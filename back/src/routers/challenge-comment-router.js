@@ -1,73 +1,23 @@
 import { Router } from "express";
-import { login_required } from "../middlewares/login-required.js";
-import { CommentService } from "../services/challenge-comment-service.js";
-import { validateEmptyBody } from "../utils/validators.js"
+import { loginRequired } from "../middlewares/login-required.js";
+
+import { commentController } from "../controllers/challenge-comment-controller.js"
+import { Validation } from "../middlewares/validation.js";
+
+const commentCreateValidation = Validation.validate(Validation.challengeCommentCreateSchema);
+const commentUpdateValidation = Validation.validate(Validation.challengeCommentUpdateSchema);
 
 const commentRouter = Router();
+commentRouter.use(loginRequired);
 
-commentRouter.post("/:challenge_id/comments", login_required, async function (req, res, next) {
-  try {
-    validateEmptyBody(req)
-    const challengeId = req.params.challenge_id
-    const user_id = req.currentUserId;
-    const { content } = req.body;
-    
-    const challenge = await CommentService.createComment({ user_id, challenge_id : challengeId, content });
-    res.json(challenge);
-  } catch (err) {
-    next(err);
-  }
-});
+commentRouter.post("/challenges/:challengeId/comments", commentCreateValidation, commentController.commentCreate);
 
-commentRouter.get("/:challenge_id/comments", login_required, async function (req, res, next) {
-  try {
-    const challenge_id = req.params.challenge_id
-    const comments = await CommentService.findComments({ challenge_id });
-    res.json(comments);
-  } catch (err) {
-    next(err);
-  }
-});
+commentRouter.get("/challenges/:challengeId/comments", commentController.commentGetAll);
 
-commentRouter.get("/:challenge_id/comments/:_id", login_required, async function (req, res, next) {
-  try {
-    const { challenge_id, _id } = req.params;
-  
-    const Comment = await CommentService.findComment({ challenge_id, _id });
-    res.json(Comment);
-  } catch (err) {
-    next(err);
-  }
-});
+commentRouter.get("/challenges/:challengeId/comments/:_id", commentController.commentGet);
 
-commentRouter.put("/:challenge_id/comments/:_id", login_required, async function (req, res, next) {
-  try {
-    const { challenge_id, _id } = req.params;
-    const currentUserId = req.currentUserId;
-    const { content } = req.body;  
+commentRouter.put("/challenges/:challengeId/comments/:_id", commentUpdateValidation, commentController.commentUpdate);
 
-    const comment = await CommentService.updateComment({ 
-      challenge_id, _id, currentUserId, content
-    });
-    
-    res.json(comment);
-  } catch (error) {
-    next(error);
-  }
-});
-
-commentRouter.delete("/:challenge_id/comments/:_id", login_required, async function (req, res, next){
-  try {
-    const _id = req.params._id;
-    const currentUserId = req.currentUserId;
-
-    await CommentService.deleteComment(_id, currentUserId);
-     
-    res.status(200).json({ message: "challenge 삭제 완료"});
-
-  } catch (error) {
-    next(error);
-  }
-});
+commentRouter.delete("/challenges/:challengeId/comments/:_id", commentController.commentDelete);
 
 export { commentRouter };

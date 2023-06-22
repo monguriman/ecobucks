@@ -6,48 +6,57 @@ class Challenge {
     return createdChallenge;
   }
   
-  static async findAll( ) {
-    const Challenges = await challengeModel.find( );
-    return Challenges;
+  static async findAll() {
+    const challenges = await challengeModel.find();
+    return challenges;
   }
 
-  static NoAsyncfindAll( ) {
-    const Challenges = challengeModel.find( );
-    return Challenges;
+  static NoAsyncfindAll() {
+    const challenges = challengeModel.find();
+    return challenges;
+  }
+
+  static async findAndCountAll(skip, limit) {
+    const challenges = await challengeModel.find().populate('userId', 'userName districtCode districtName')
+                      .skip(skip)
+                      .limit(limit)
+                      .exec()
+    const count = await challengeModel.countDocuments();
+    return { challenges, count };
   }
   
-  static async findById({ _id }){
-    const Challenge = await challengeModel.findById({ _id });
-    return Challenge
+  static async findById(_id){
+    const challenge = await challengeModel.findById(_id);
+    return challenge
   }
 
-  static NoAsyncfindById({ _id }) {
-    const Challenge = challengeModel.findById({ _id });
-    return Challenge;
+  static async findOne(challengeId){
+    const challenge = await challengeModel.findOne(challengeId);
+    return challenge
   }
 
-<<<<<<< HEAD
+  static NoAsyncfindById({ chllengeId }) {
+    const challenge = challengeModel.findById({ _id: chllengeId });
+    return challenge;
+  }
+
   static async findAllByUserId({ userId }){
-    const UserChallenges = await ChallengeModel.find({ userId });;
-=======
-  static async findAllByUserId({ user_id }){
-    const UserChallenges = await challengeModel.find({ user_id });;
->>>>>>> 8c5162323d2d38d1cccc9c74b35f6a3ac34f65db
-    return UserChallenges
+    const userChallenges = await challengeModel.find({ userId });;
+    return userChallenges
   }
 
   // update
-  static async update({ _id, title, content, icon, weeks, dueDate }) {
+  static async update({ chllengeId, title, content, icon, weeks, dueDate }) {
     const updatedEducation = await challengeModel.findOneAndUpdate(
-      {_id : _id}
-      ,{title, content, icon, weeks, dueDate}
-      ,{new: true});
+      {_id : chllengeId}
+      ,{ title, content, icon, weeks, dueDate }
+      ,{ new: true });
 
     return updatedEducation;
   }
 
-  static async deleteById( _id ) {
-    await challengeModel.findByIdAndDelete( _id );
+  static async deleteById(chllengeId) {
+    await challengeModel.findByIdAndDelete({ _id: chllengeId });
     return ;
   }
   

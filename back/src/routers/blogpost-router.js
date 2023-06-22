@@ -1,22 +1,26 @@
 import { Router } from "express";
-import { login_required } from "../middlewares/login-required.js";
-import {blogpostPostWrite, blogpostPutWrite, blogpostDeleteWrite,
-    blogpostPutLikes, blogpostPutDislikes, blogpostGetAll,blogpostGetDetail} from "../controllers/blogpost-controller.js"
+import { loginRequired } from "../middlewares/login-required.js";
+import { blogpostController } from "../controllers/blogpost-controller.js"
+import { Validation } from "../middlewares/validation.js";
+
+const blogpostCreateValidation = Validation.validate(Validation.blogpostSchema);
+const blogpostUpdateValidation = Validation.validate(Validation.blogpostUpdateSchema);
 
 const blogPostRouter = Router();
+blogPostRouter.use(loginRequired);
 
-blogPostRouter.post("/blog/write", login_required, blogpostPostWrite);
+blogPostRouter.post("/blog/write", blogpostCreateValidation, blogpostController.blogpostPostWrite);
 
-blogPostRouter.put("/blog/write", login_required, blogpostPutWrite)
+blogPostRouter.put("/blog/:_id/write", blogpostUpdateValidation, blogpostController.blogpostPutWrite)
 
-blogPostRouter.delete("/blog/write", login_required, blogpostDeleteWrite)
+blogPostRouter.delete("/blog/:_id",  blogpostController.blogpostDeleteWrite)
 
-blogPostRouter.put("/blog/:_id/likes", login_required, blogpostPutLikes)
+blogPostRouter.put("/blog/:_id/likes", blogpostController.blogpostPutLikes)
 
-blogPostRouter.put("/blog/:_id/dislikes", login_required, blogpostPutDislikes)
+blogPostRouter.put("/blog/:_id/dislikes", blogpostController.blogpostPutDislikes)
 
-blogPostRouter.get("/blog", login_required, blogpostGetAll)
+blogPostRouter.get("/blog", blogpostController.blogpostGetAll)
 
-blogPostRouter.get("/blog/:_id", login_required, blogpostGetDetail)
+blogPostRouter.get("/blog/:_id", blogpostController.blogpostGetDetail)
 
 export { blogPostRouter };

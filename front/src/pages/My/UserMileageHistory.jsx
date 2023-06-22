@@ -1,103 +1,78 @@
-import React, { useState } from "react";
-import { Table, Pagination, Container } from "react-bootstrap";
+import React, { useState, useEffect } from "react";
+import { Table, Container } from "react-bootstrap";
+import * as Api from "../../api";
+import { formatDate } from "../../util/common";
+import PagenationBar from "../Modal/PaginationBar";
 
-const UserMileageHistory = () => {
+const UserMileageHistory = ({ user }) => {
   const [currentPage, setCurrentPage] = useState(1);
-  const ordersPerPage = 5;
+  const [mileageHistory, setMileageHistory] = useState([]);
+  const [totalPages, setTotalPages] = useState(1);
 
-  // 더미 데이터 주문 내역
-  const orderHistory = [
-    {
-      date: "2023-05-15",
-      mileage: 4932,
-      event: "6월 1주차 : 전기코드 뽑기",
-    },
-    {
-      date: "2023-05-16",
-      mileage: 345,
-      event: "(깜짝이벤트) 돌고래 돌보기",
-    },
-    {
-      date: "2023-05-16",
-      mileage: 1346,
-      event: "포장 용기 쓰기",
-    },
-    {
-      date: "2023-05-16",
-      mileage: 345,
-      event: "텀블러로 음료 마시기",
-    },
-    {
-      date: "2023-05-16",
-      mileage: 45,
-      event: "전기코드 뽑기",
-    },
-    {
-      date: "2023-05-16",
-      mileage: 4342,
-      event: "돌고래 돌보기",
-    },
-    {
-      date: "2023-05-16",
-      mileage: 4342,
-      event: "포장 용기 쓰기",
-    },
-    {
-      date: "2023-05-16",
-      mileage: 4342,
-      event: "텀블러로 음료 마시기",
-    },
+  useEffect(() => {
+    const fetchMileageHistory = async () => {
+      try {
+        const res = await Api.get(`mypage/challenges?page=${currentPage}`);
+        console.log(res);
+        if (res.data.message) {
+          setMileageHistory([]);
+        } else {
+          setMileageHistory(res.data.newParticipations.userParticipationList || []);
+          setTotalPages(res.data.totalPages);
+        }
+      } catch (err) {
+        console.error("Failed to fetch mileage history:", err);
+      }
+    };
 
-    // 더 많은 주문 내역 데이터...
-  ];
+    fetchMileageHistory();
+  }, [user, currentPage]);
 
-  // 현재 페이지에 해당하는 주문 내역 가져오기
-  const indexOfLastMileage = currentPage * ordersPerPage;
-  const indexOfFirstMileage = indexOfLastMileage - ordersPerPage;
-  const currentMileages = orderHistory.slice(indexOfFirstMileage, indexOfLastMileage);
-
-  // 페이지네이션 클릭 시 페이지 변경
-  const handlePageChange = (pageNumber) => {
-    setCurrentPage(pageNumber);
+  const handlePageChange = (newPage) => {
+    if (newPage < 1) {
+      setCurrentPage(1);
+    } else if (newPage > totalPages) {
+      setCurrentPage(totalPages);
+    } else {
+      setCurrentPage(newPage);
+    }
   };
 
   return (
     <Container className="mb-5">
       <Table striped>
         <thead>
-          <tr style={{fontSize:'0.9rem'}}>
+          <tr style={{ fontSize: "0.9rem" }}>
             <th>적립 날짜</th>
             <th>적립 금액</th>
             <th>챌린지/활동</th>
+            <th>테마 아이콘</th>
           </tr>
         </thead>
         <tbody>
-          {currentMileages.map((order, index) => (
-            <tr key={index}  style={{fontSize:'0.8rem'}}>
-              <td style={{ width: '25%' }}>{order.date}</td>
-              <td style={{ width: '25%' }}>{order.mileage.toLocaleString()}</td>
-              <td style={{ width: '50%' }}>{order.event}</td>
+          {mileageHistory.length > 0 ? (
+            mileageHistory.map((mileage, index) => (
+              <tr key={index} style={{ fontSize: "0.8rem" }}>
+                <td style={{ width: "25%" }}>{formatDate(mileage.participationCreatedAt)}</td>
+                <td style={{ width: "25%" }}>1,000</td>
+                <td style={{ width: "25%" }}>{mileage.challengeTitle}</td>
+                <td style={{ width: "25%" }}>{mileage.challengeIcon}</td>
+              </tr>
+            ))
+          ) : (
+            <tr>
             </tr>
-          ))}
+          )}
         </tbody>
       </Table>
 
-      {orderHistory.length > ordersPerPage && (
-        <Container className="d-flex justify-content-center">
-  <Pagination size='sm'>
-    {Array.from({ length: Math.ceil(orderHistory.length / ordersPerPage) }).map((_, index) => (
-      <Pagination.Item
-        key={index + 1}
-        active={index + 1 === currentPage}
-        onClick={() => handlePageChange(index + 1)}
-      >
-        {index + 1}
-      </Pagination.Item>
-    ))}
-  </Pagination>
-</Container>
-)}
-
+      <Container className="d-flex justify-content-center">
+        <PagenationBar
+          totalPages={totalPages}
+          handlePageChange={handlePageChange}
+          currentPage={currentPage}
+        />
+      </Container>
     </Container>
   );
 };

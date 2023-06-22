@@ -7,7 +7,7 @@ const userSchema = new Schema(
       required: true,
       unique: true,
     },
-    username: {
+    userName: {
       type: String,
       required: true,
     },
@@ -20,15 +20,15 @@ const userSchema = new Schema(
       required: false,
       default: 0
     },
-    guCode: {
+    districtCode: {
       type: Number,
       required: true
     },
-    guName: {
+    districtName: {
       type: String,
       required: true
     },
-    is_withdrawed : {
+    isWithdrew : {
       type: Boolean,
       default: false
     }

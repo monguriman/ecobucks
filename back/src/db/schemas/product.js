@@ -1,4 +1,4 @@
-import { mongoose, Schema, model } from "mongoose";
+import { Schema, model } from "mongoose";
 
 const productSchema = new Schema(
   {
@@ -14,19 +14,37 @@ const productSchema = new Schema(
       type: String,
       required: true,
     },
+    location: {
+      x: {
+        type: Number,
+        required: true,
+      },
+      y: {
+        type: Number,
+        required: true,
+      },
+    },
     stock: {
       type: Number,
       required: true,
     },
     seller: {
-      type: mongoose.Schema.Types.ObjectId,
+      type: Schema.Types.ObjectId,
       ref: "User",
       required: true,
+    },
+    sellerName: {
+      type: Schema.Types.String,
+      ref: "User",
     },
     description: {
       type: String,
       default: "상품 상세 설명이 없습니다.",
       required: true,
+    },
+    imageId: { 
+      type: Schema.Types.ObjectId, 
+      ref: 'Image',
     },
   },
   {

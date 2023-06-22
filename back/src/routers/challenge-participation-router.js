@@ -1,77 +1,24 @@
 import { Router } from "express";
-import { login_required } from "../middlewares/login-required.js";
-import { ParticipationService } from "../services/challenge-participation-service.js";
-import { validateEmptyBody } from "../utils/validators.js"
+import { loginRequired } from "../middlewares/login-required.js";
+import { participationController } from "../controllers/challenge-participation-controller.js"
+import { Validation } from "../middlewares/validation.js";
+
+const participationCreateValidation = Validation.validate(Validation.participationCreateSchema);
+const participationUpdateValidation = Validation.validate(Validation.participationUpdateSchema);
 
 const participationRouter = Router();
+participationRouter.use(loginRequired)
 
-participationRouter.post("/:challenge_id/participants", login_required, async function (req, res, next) {
-  try {
-    validateEmptyBody(req)
-    const challengeId = req.params.challenge_id
-    const userId = req.currentUserId;
-    const { image } = req.body;
-    
-<<<<<<< HEAD
-    const challenge = await challengeParticipationService.createChallengeParticipation({ userId, challenge_id : challengeId, image });
-=======
-    const challenge = await ParticipationService.createParticipation({ user_id, challenge_id : challengeId, image });
->>>>>>> 8c5162323d2d38d1cccc9c74b35f6a3ac34f65db
-    res.json(challenge);
-  } catch (err) {
-    next(err);
-  }
-});
+participationRouter.post("/challenges/:challengeId/participants", participationCreateValidation, participationController.participationCreate);
 
-participationRouter.get("/:challenge_id/participants", login_required, async function (req, res, next) {
-  try {
-    const challenge_id = req.params.challenge_id
-    const participation = await ParticipationService.findChallenges({ challenge_id });
-    res.json(participation);
-  } catch (err) {
-    next(err);
-  }
-});
+participationRouter.get("/challenges/:challengeId/participants", participationController.participationGetAll);
 
-participationRouter.get("/:challenge_id/participants/:_id", login_required, async function (req, res, next) {
-  try {
-    const { challenge_id, _id } = req.params;
-  
-    const participation = await ParticipationService.findChallenge({ challenge_id, _id });
-    res.json(participation);
-  } catch (err) {
-    next(err);
-  }
-});
+participationRouter.get("/challenges/:challengeId/participants/:_id", participationController.participationGet);
 
-participationRouter.put("/:challenge_id/participants/:_id", login_required, async function (req, res, next) {
-  try {
-    const { challenge_id, _id } = req.params;
-    const currentUserId = req.currentUserId;
-    const { image } = req.body;  
+participationRouter.put("/challenges/:challengeId/participants/:_id", participationUpdateValidation, participationController.participationUpdate);
 
-    const participation = await ParticipationService.updateChallenge({ 
-      challenge_id, _id, currentUserId, image
-    });
-    
-    res.json(participation);
-  } catch (error) {
-    next(error);
-  }
-});
-
-participationRouter.delete("/:challenge_id/participants/:_id", login_required, async function (req, res, next){
-  try {
-    const _id = req.params._id;
-    const currentUserId = req.currentUserId;
-
-    const participation = await ParticipationService.deleteChallenge(_id, currentUserId);
-     
-    res.status(200).json({ message: "challenge 삭제 완료"});
-
-  } catch (error) {
-    next(error);
-  }
-});
+participationRouter.delete("/challenges/:challengeId/participants/:_id", participationController.participationDelete);
 
 export { participationRouter };
+
+

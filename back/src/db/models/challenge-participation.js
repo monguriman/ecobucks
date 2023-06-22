@@ -1,23 +1,33 @@
 import { participationModel } from "../schemas/challenge-participation.js";
 
-class Participation {
+class ChallengeParticipation {
   static async create(newChallenge) {
     const createdChallenge = await participationModel.create(newChallenge);
     return createdChallenge;
   }  
 
-  static async findAll( ) {
-    const participations = await participationModel.find( );
+  static async findAll() {
+    const participations = await participationModel.find();
     return participations;
   } 
 
-  static NoAsyncfindAll({ challenge_id }) {
-    const participations = participationModel.find({ challenge_id });
+  static async find({ userId, challengeId }) {
+    const participations = await participationModel.find({ userId, challengeId });
+    return participations;
+  } 
+
+  static NoAsyncfindAll({ challengeId }) {
+    const participations = participationModel.find({ challengeId });
     return participations;
   }
   
   static async findById({ _id }){
     const participation = await participationModel.findById({ _id });
+    return participation
+  }
+
+  static async findOne({ challengeId }){
+    const participation = await participationModel.findOne({ challengeId });
     return participation
   }
 
@@ -27,25 +37,34 @@ class Participation {
   }
   
   static async findAllByUserId({ userId }){
-    const UserChallenges = await ChallengeParticipationModel.find({ userId });;
-    return UserChallenges
+    const userParticipations = await participationModel.find({ userId });;
+    return userParticipations
+  }
+  
+  static async findAndCountAll( userId, skip, limit ){
+    const userParticipations = await participationModel.find({userId})
+                      .skip(skip)
+                      .limit(limit)
+                      .exec();
+    const count = await participationModel.countDocuments();
+    return { userParticipations, count }
   }
 
   // update
-  static async update({ _id, image }) {
+  static async update({ _id, imageId }) {
     const updateParticipation = await participationModel.findOneAndUpdate(
-      {_id : _id}
-      ,{image}
-      ,{new: true});
+      { _id : _id }
+      ,{ imageId }
+      ,{ new: true });
 
     return updateParticipation               ;
   }
 
-  static async deleteById( _id ) {
-    await participationModel.findByIdAndDelete( _id );
+  static async deleteById(_id) {
+    await participationModel.findByIdAndDelete(_id);
     return ;
   }
   
 }
 
-export { Participation };
+export { ChallengeParticipation };

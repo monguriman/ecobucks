@@ -9,74 +9,39 @@ import {
   Image,
   Dropdown,
 } from "react-bootstrap";
+
 import Logo from "../../assets/logo.png";
+import districtInfo from "../../assets/districtInfo";
+import {
+  validatePassword,
+  validateEmail,
+  validateName,
+} from "../../util/common";
+import { LOGIN_SUCCESS } from "../../reducer/action";
 
 import * as Api from "../../api";
-import { DispatchContext, UserStateContext } from '../../context/user/UserProvider'
-
+import {
+  DispatchContext,
+  UserStateContext,
+} from "../../context/user/UserProvider";
+import { showAlert } from "../../assets/alert";
 
 function RegisterForm() {
   const navigate = useNavigate();
-  const dispatch = useContext(DispatchContext)
-  const userState = useContext(UserStateContext)
+  const dispatch = useContext(DispatchContext);
+  const userState = useContext(UserStateContext);
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [name, setName] = useState("");
-  const [district, setDistrict] = useState(null);
-
-  const districts = [
-    "강남구",
-    "강동구",
-    "강북구",
-    "강서구",
-    "관악구",
-    "광진구",
-    "구로구",
-    "금천구",
-    "노원구",
-    "도봉구",
-    "동대문구",
-    "동작구",
-    "마포구",
-    "서대문구",
-    "서초구",
-    "성동구",
-    "성북구",
-    "송파구",
-    "양천구",
-    "영등포구",
-    "용산구",
-    "은평구",
-    "종로구",
-    "중구",
-    "중랑구",
-  ];
-
-  const validateEmail = (email) => {
-    return email
-      .toLowerCase()
-      .match(
-        /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
-      );
-  };
-
-  const validatePassword = (password) => {
-    return password.match(
-      /^(?=.*[a-zA-Z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!%*#?&]{6,18}$/
-    );
-  };
-
-  const validateName = (name) => {
-    return name.match(/^[a-zA-Z가-힣\s]{2,20}$/);
-  };
+  const [districtName, setDistrict] = useState(null);
 
   const isEmailValid = validateEmail(email);
   const isPasswordValid = validatePassword(password);
   const isPasswordSame = password === confirmPassword;
   const isNameValid = validateName(name);
-  const isDistrictValid = district != null;
+  const isDistrictValid = districtName != null;
 
   const isFormValid =
     isEmailValid &&
@@ -91,10 +56,10 @@ function RegisterForm() {
     try {
       // "user/register" 엔드포인트로 post요청함.
       await Api.post("register", {
-        username: name,
+        userName: name,
         email,
         password,
-        guName: district,
+        districtName,
       });
 
       // 회원가입과 동시에 로그인 되도록 함.
@@ -110,29 +75,26 @@ function RegisterForm() {
       sessionStorage.setItem("userToken", jwtToken);
       // dispatch 함수를 이용해 로그인 성공 상태로 만듦.
       dispatch({
-        type: "LOGIN_SUCCESS",
+        type: LOGIN_SUCCESS,
         payload: user,
       });
 
       // 기본 페이지로 이동함.
       navigate("/", { replace: true });
-      
     } catch (err) {
-      if (err.response.status === 400) {
-        alert(err.response.data);
-    }
-      console.log("회원가입에 실패하였습니다.", err);
+      showAlert(err.response.data.message);
     }
   };
 
   return (
     <Container
-      className="position-absolute top-50 start-50 translate-middle pt-3 pb-3"
+      className="position-relative pt-3 pb-3"
       style={{
         width: "40%",
         backgroundColor: "#F3F3F3",
-        transform: "translate(-50%, -50%)",
         borderRadius: "5px",
+        marginBottom: "20px",
+        marginTop: '90px'
       }}
     >
       <Container className="text-center">
@@ -237,22 +199,22 @@ function RegisterForm() {
               <Dropdown.Toggle
                 variant="light"
                 className="text-start d-block"
-                id="dropdown-district"
+                id="dropdown-districtName"
                 style={{
                   backgroundColor: "white",
                   width: "100%",
                   borderRadius: "0px",
                 }}
               >
-                {district || "구를 선택해주세요. "}
+                {districtName || "구를 선택해주세요. "}
               </Dropdown.Toggle>
               <Dropdown.Menu style={{ maxHeight: "200px", overflowY: "auto" }}>
-                {districts.map((district) => (
+                {districtInfo.map((districtData) => (
                   <Dropdown.Item
-                    key={district}
-                    onClick={() => setDistrict(district)}
+                    key={districtData.name}
+                    onClick={() => setDistrict(districtData.name)}
                   >
-                    {district}
+                    {districtData.name}
                   </Dropdown.Item>
                 ))}
               </Dropdown.Menu>

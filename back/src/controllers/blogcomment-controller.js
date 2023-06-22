@@ -1,60 +1,73 @@
 import { blogCommentService } from "../services/blogcomment-service.js";
-import is from '@sindresorhus/is';
+import { validateEmptyBody } from "../utils/validators.js"
+import { NOT_FOUND, CREATED, OK, NO_CONTENT } from "../utils/constants.js";
 
-const blogcommentPostWrite = async (req, res, next) => {
-    try {
-        if (is.emptyObject(req.body)) {
-            throw new Error(
-                "headers의 Content-Type을 application/json으로 설정해주세요"
-            );
+
+const blogcommentController = {
+    blogcommentPostWrite: async (req, res, next) => {
+        try {
+            validateEmptyBody(req)
+            const postId = req.params._id
+            const writerId = req.currentUserId;
+            const { comment } = req.body;
+
+            const newComment = await blogCommentService.addComment({
+                postId, writerId, comment
+            });
+            
+            return res.status(CREATED).send(newComment);
+        } catch (error) {
+            next(error);
         }
+    }, 
     
-        const { post_id, writer_id, comment } = req.body;
+    blogcommentPutWrite: async function(req, res, next) {
+        try{
+            const commentId = req.params._id
+            const { comment } = req.body;
+            const toUpdate = { comment };
+            const updatedComment = await blogCommentService.setComment({
+                commentId, 
+                toUpdate
+            })
+    
+            if (updatedComment.errorMessage) {
+                throw new Error(updatedComment.errorMessage);
+            }
+    
+            return res.status(OK).send(updatedComment);
+    
+        } catch (error) {
+            next(error)
+        }
+    },
+    
+    blogcommentDeleteWrite: async function(req, res, next) {
+        try{
+            const commentId = req.params._id
+            const result = await blogCommentService.deleteComment({ commentId })
+    
+            if (result.errorMessage) {
+                throw new Error(result.errorMessage)
+            }
+    
+            return res.status(NO_CONTENT).send(result)
+    
+        } catch(error) {
+            error.status = NOT_FOUND;
+            next(error)
+        }
+    },
 
-        const newComment = await blogCommentService.addComment({
-            post_id, writer_id, comment
-        });
-        
-        return res.status(201).json(newComment);
-    } catch (error) {
+    blogcommentGetAll: async function(req, res, next) {
+        try {
+            const comments = await blogCommentService.findAllComments();
+
+            res.status(OK).send(comments);
+        } catch (error) {
         next(error);
-    }
-};  
-
-const blogcommentPutWrite = async function(req, res, next) {
-    try{
-        const { comment_id, comment } = req.body;
-        const toUpdate = {comment};
-        const updatedComment = await blogCommentService.setComment({
-            comment_id, 
-            toUpdate
-        })
-
-        if (updatedComment.errorMessage) {
-            throw new Error(updatedComment.errorMessage);
         }
-
-        return res.status(200).json(updatedComment);
-
-    } catch (error) {
-        next(error)
     }
 }
 
-
-const blogcommentDeleteWrite = async function(req, res, next) {
-    try{
-        const {comment_id} = req.body;
-        const result = await blogCommentService.deleteComment({comment_id})
-
-        if (result.errorMessage) {
-            throw new Error(result.errorMessage)
-        }
-
-        return res.status(200).send(result)
-
-    } catch(error) {
-        next(error)
-    }
-}
-export {blogcommentPostWrite, blogcommentPutWrite, blogcommentDeleteWrite};
+export { blogcommentController };

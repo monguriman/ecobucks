@@ -1,216 +1,194 @@
-import { Link } from "react-router-dom";
-import { Container, Button, Dropdown, DropdownButton} from "react-bootstrap";
-import map from "../../../../data/seoul_map/seoulMap.png";
-import DomesticAverage from "../../../../data/DomesticAverage.png";
-import DomesticDistrict from "../../../../data/DomesticDistrict.png";
-import district1 from "../../../../data/seoul_map/district1.png";
-import district2 from "../../../../data/seoul_map/district2.png";
-import district3 from "../../../../data/seoul_map/district3.png";
-import district4 from "../../../../data/seoul_map/district4.png";
-import district5 from "../../../../data/seoul_map/district5.png";
-import Industry from "../../../../data/Industry.png";
-import mall from "../../assets/mall.png";
-import tip from "../../assets/tip.png";
-import challenge from "../../assets/challenge.png";
-import TipCarousel from "./TipCarousel";
-import { useState } from "react";
+import { Container, Row, Col, Card } from "react-bootstrap";
+import { useContext } from "react";
+import { UserStateContext } from "../../context/user/UserProvider";
+
+import BannerCarousel from "./BannerCarousel";
+import TrendingBlogs from "./TrendingBlogs";
+import TrendingChallenges from "./TrendingChallenges";
+import Intro from "./Intro";
+
+import SeoulDistrictsGraph from "./Data/SeoulDistrictGraph";
+import SeoulUsageGraph from "./Data/SeoulUsageGraph";
+import SeasonalUsageGraph from "./Data/SeasonalUsageGraph";
+import DistrictChart from "./Data/DistrictChart";
+import districtInfo from "../../assets/districtInfo";
+import { ArcElement, Chart as ChartJS, Legend, Tooltip } from "chart.js";
+ChartJS.register(ArcElement, Tooltip, Legend);
 
 const HomePage = () => {
-  const [currentImg, setCurrentImg] = useState(map);
-  
-  const handleButtonClick = (img) => {
-    setCurrentImg(img);
-  };
+  const { user } = useContext(UserStateContext);
 
-  const districts = [
-    "강남구",
-    "강동구",
-    "강북구",
-    "강서구",
-    "관악구",
-    // 6: "광진구",
-    // 7: "구로구",
-    // 8: "금천구",
-    // 9: "노원구",
-    // 10: "도봉구",
-    // 11: "동대문구",
-    // 12: "동작구",
-    // 13: "마포구",
-    // 14: "서대문구",
-    // 15: "서초구",
-    // 16: "성동구",
-    // 17: "성북구",
-    // 18: "송파구",
-    // 19: "양천구",
-    // 20: "영등포구",
-    // 21: "용산구",
-    // 22: "은평구",
-    // 23: "종로구",
-    // 24: "중구",
-    // 25: "중랑구"
-  ];
+  if (!user) {
+    return <Intro />;
+  }
 
   return (
-    <div style={{ justifyContent: "center", padding: "60px" }}>
+    <div
+      style={{
+        display: "flex",
+        flexDirection: "column",
+        minHeight: "100vh",
+      }}
+    >
       <div
+        style={{
+          flexGrow: 1,
+          justifyContent: "center",
+          paddingLeft: "140px",
+          paddingRight: "140px",
+          paddingTop: "150px",
+        }}
+      >
+        <div
           style={{
             position: "absolute",
             top: 0,
             left: 0,
             right: 0,
-            bottom: "60%",
-            background: "#4d9e81",
-            zIndex: -1
+            bottom: "70%",
+            background: "#00D387",
+            zIndex: -1,
           }}
         ></div>
-      <h3
-        style={{
-          display: "flex",
-          justifyContent: "center",
-          position: "center",
-        }}
-      >
-        <span style={{ color: "#00D387", fontSize: "48px" }}>ECOBUCKS</span>
-      </h3>
-      <span
-        style={{
-          color: "#FF6B00",
-          fontSize: "24px",
-          display: "flex",
-          justifyContent: "center",
-        }}
-      >
-        Make Tomorrow Bright
-      </span>
-      <Container
-        style={{
-          marginBottom: "20px",
-          display: "flex",
-          justifyContent: "center",
-        }}
-      >
-        <Link to="/mall">
-          <Button
-            type="button"
-            style={{display:"grid", marginRight: "20px", backgroundColor: "#fff", placeItems: "center",}}
-          >
-            <img src={mall}></img>
-            <span style={{color: "black"}}>떠리몰</span>
-          </Button>
-        </Link>
-        <Link to="/blog">
-          <Button
-            type="button"
-            style={{ display:"grid", marginRight: "20px", backgroundColor: "#fff", placeItems: "center", }}
-          >
-            <img src={tip}></img>
-            <span style={{color: "black"}}>블로그</span>
-          </Button>
-        </Link>
-        <button
-          type="button"
-          style={{ marginRight: "20px", backgroundColor: "#fff" }}
+        <Container>
+          <BannerCarousel />
+        </Container>
+
+        <Row
+          className="justify-content-md-end mt-5"
+          style={{ alignItems: "stretch" }}
         >
-          <span style={{color:"black"}}>전력 통계</span>
-        </button>
-        <Link to="/challenge">
-          <Button type="button" style={{ display:"grid", backgroundColor: "#fff", placeItems:"center" }}>
-          <img src={challenge}></img>
-          <span style={{color: "black"}}>챌린지</span>
-          </Button>
-        </Link>
-      </Container>
-      <span>전력통계</span>
-      <Container
-        style={{
-          width: "100%",
-          height: "50vh",
-          backgroundColor: "#fff",
-          border: "1px solid #000",
-          borderRadius: "10px",
-          padding: "10px",
-          marginTop: "10px",
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-        }}
-      >
-        <img src={currentImg}  style={{width:"50%", height:"100%" }} />
-        <div
-          className="btn-toolbar justify-content-md-end"
-          role="toolbar"
-          aria-label="Toolbar with button groups"
+          <Col xl={6}>
+            <Card
+              style={{
+                border: "1px solid #cccccc",
+                width: "100%",
+                height: "100%",
+                overflow: "hidden",
+                boxShadow: "3px 3px 4px #ebebeb",
+              }}
+            >
+              <Card.Body style={{ display: "flex", flexDirection: "column" }}>
+                <h3>서울시 가구 당 전력 사용량 평균 (연도별)</h3>
+                <h6>(단위 : kWh)</h6>
+                <div
+                  style={{
+                    marginTop: "18px",
+                    height: "5.5px",
+                    width: "120px",
+                    backgroundColor: "#FF6B00",
+                    borderRadius: "10px",
+                  }}
+                ></div>
+                <SeoulUsageGraph />
+              </Card.Body>
+            </Card>
+          </Col>
+
+          <Col xl={6}>
+            <Card
+              style={{
+                border: "1px solid #cccccc",
+                width: "100%",
+                height: "100%",
+                overflow: "hidden",
+                boxShadow: "3px 3px 4px #ebebeb",
+              }}
+            >
+              <Card.Body style={{ display: "flex", flexDirection: "column" }}>
+                <h3>서울시 가구 당 전력 사용량 평균 (계절별)</h3>
+                <h6>(단위 : kWh)</h6>
+                <div
+                  style={{
+                    marginTop: "18px",
+                    height: "5.5px",
+                    width: "120px",
+                    backgroundColor: "#FF6B00",
+                    borderRadius: "10px",
+                  }}
+                ></div>
+                <SeasonalUsageGraph />
+              </Card.Body>
+            </Card>
+          </Col>
+        </Row>
+
+        {/* <Container
+          style={{
+            width: "100%",
+            backgroundColor: "#fff",
+            border: "1px solid #d6d6d6",
+            borderRadius: "10px",
+            boxShadow: "3px 3px 4px #ebebeb",
+            padding: "20px",
+            marginTop: "50px",
+          }}
         >
-          <div className="d-grid gap-2 mx-auto justify-content-md-end">
-            <DropdownButton title="구 별 전력 사용량 보기">
-              <Dropdown.Item eventKey="seoul" onClick={() => handleButtonClick(map)}>
-                서울시 전체
-              </Dropdown.Item>
-              <Dropdown.Item eventKey="Gangnam" onClick={() => handleButtonClick(district1)}>
-                {districts[0]}
-              </Dropdown.Item>
-              <Dropdown.Item eventKey="something" onClick={() => handleButtonClick(district2)}>
-                {districts[1]}
-              </Dropdown.Item>
-              <Dropdown.Item eventKey="something" onClick={() => handleButtonClick(district3)}>
-                {districts[2]}
-              </Dropdown.Item>
-              <Dropdown.Item eventKey="something" onClick={() => handleButtonClick(district4)}>
-                {districts[3]}
-              </Dropdown.Item>
-              <Dropdown.Item eventKey="something" onClick={() => handleButtonClick(district5)}>
-                {districts[4]}
-              </Dropdown.Item>
-            </DropdownButton>
-            <button type="button" className="btn btn-primary" onClick={()=>handleButtonClick(Industry)}>
-              산업용
-            </button>
-            <button type="button" className="btn btn-primary" onClick={()=>handleButtonClick(DomesticAverage)}>
-              서울시 평균 사용량(가정용)
-            </button>
-            <button type="button" className="btn btn-primary" onClick={()=>handleButtonClick(DomesticDistrict)}>
-              구 별 사용량(가정용)
-            </button>
+          <h3>서울 평균</h3>
+          <div
+            style={{
+              marginTop: "18px",
+              height: "5.5px",
+              width: "120px",
+              backgroundColor: "#FF6B00",
+              borderRadius: "10px",
+            }}
+          >
+            {" "}
+
           </div>
-        </div>
-      </Container>
-      <Container
-        style={{
-          width: "100%",
-          height: "30vh",
-          backgroundColor: "#fff",
-          border: "1px solid #000",
-          borderRadius: "10px",
-          padding: "10px",
-          marginTop: "10px",
-        }}
-      >
-        <TipCarousel />
-      </Container>
-      
-      <Container
-        style={{
-          width: "100%",
-          height: "30vh",
-          backgroundColor: "#fff",
-          border: "1px solid #000",
-          borderRadius: "10px",
-          padding: "10px",
-          marginTop: "10px",
-        }}
-      ></Container>
-      <Container
-        style={{
-          width: "100%",
-          height: "30vh",
-          backgroundColor: "#fff",
-          border: "1px solid #000",
-          borderRadius: "10px",
-          padding: "10px",
-          marginTop: "10px",
-        }}
-      ></Container>
+
+      <Row className="justify-content-md-end">
+        <Col>
+          <SeoulUsageGraph />
+        </Col>
+        <Col>
+          <SeasonalUsageGraph />
+        </Col>
+      </Row> */}
+
+        {/* </Container> */}
+
+        <Container
+          style={{
+            width: "100%",
+            backgroundColor: "#fff",
+            border: "1px solid #d6d6d6",
+            borderRadius: "10px",
+            boxShadow: "3px 3px 4px #ebebeb",
+            padding: "20px",
+            marginTop: "50px",
+          }}
+        >
+          <h3>서울시 가구 당 전력 사용량 평균 (구별)</h3>
+          <h6>(단위 : kWh)</h6>
+          <h6>구를 선택하여 구별 차이를 확인해보세요.</h6>
+          <div
+            style={{
+              marginTop: "18px",
+              height: "5.5px",
+              width: "120px",
+              backgroundColor: "#FF6B00",
+              borderRadius: "10px",
+            }}
+          >
+            {" "}
+          </div>
+
+          <div
+            className="btn-toolbar justify-content-center justify-content-md-end"
+            role="toolbar"
+            aria-label="Toolbar with button groups"
+          >
+            <SeoulDistrictsGraph />
+          </div>
+        </Container>
+
+        <TrendingBlogs />
+        <TrendingChallenges />
+      </div>
     </div>
   );
 };
+
 export default HomePage;

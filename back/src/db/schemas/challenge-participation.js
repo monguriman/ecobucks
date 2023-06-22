@@ -7,20 +7,30 @@ const participationSchema = new Schema(
       ref: 'User', 
       required: true 
     },
-    challenge_id: { 
+    imageId: { 
       type: Schema.Types.ObjectId, 
-      ref: 'Chellenge', 
+      ref: 'Image',
+    },
+    challengeId: { 
+      type: Schema.Types.ObjectId, 
+      ref: 'Challenge', 
       required: true 
     },
-    image: { 
-      type: String, 
-      required: true 
+    mileage: { 
+      type: Number, 
+      default: 1000,
+      required: false,
     },
+    hasParticipatedToday: {
+      type: Boolean, 
+      required: false,
+      default: false
+    }
   },
   {
     timestamps: true,    
   }
 );
 
-const participationModel = model('Participation', participationSchema);
+const participationModel = model('ChallengeParticipation', participationSchema);
 export { participationModel };

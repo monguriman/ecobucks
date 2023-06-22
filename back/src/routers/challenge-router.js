@@ -1,71 +1,22 @@
 import { Router } from "express";
-import { login_required } from "../middlewares/login-required.js";
-import { ChallengeService } from "../services/challenge-service.js";
-import { validateEmptyBody } from "../utils/validators.js"
+import { loginRequired } from "../middlewares/login-required.js";
+import { challengeController } from "../controllers/challenge-controller.js"
+import { Validation } from "../middlewares/validation.js";
+
+const challengeCreateValidation = Validation.validate(Validation.challengeCreateSchema);
+const challengeUpdateValidation = Validation.validate(Validation.challengeUpdateSchema);
 
 const challengeRouter = Router();
+challengeRouter.use(loginRequired)
 
-challengeRouter.post("/", login_required, async function (req, res, next) {
-  try {
-    validateEmptyBody(req)
-    const userId = req.currentUserId;
-    console.log(req.body)
-    const { title, content, icon, weeks } = req.body;
-    
+challengeRouter.post("/challenges", challengeCreateValidation, challengeController.challengeCreat);
 
-    const challenge = await ChallengeService.createChallenge({ userId, title, content, icon, weeks });
-    res.json(challenge);
-  } catch (err) {
-    next(err);
-  }
-});
+challengeRouter.get("/challenges", challengeController.challengeGetAll);
 
-challengeRouter.get("/", login_required, async function (req, res, next) {
-  try {
-    const challenge = await ChallengeService.findChallenges( );
-    res.json(challenge);
-  } catch (err) {
-    next(err);
-  }
-});
+challengeRouter.get("/challenges/:_id", challengeController.challengeGet);
 
-challengeRouter.get("/:_id", login_required, async function (req, res, next) {
-  try {
-    const _id = req.params._id;
-    const challenge = await ChallengeService.findChallenge({ _id });
-    res.json(challenge);
-  } catch (err) {
-    next(err);
-  }
-});
+challengeRouter.put("/challenges/:_id", challengeUpdateValidation, challengeController.challengeUpdate);
 
-challengeRouter.put("/:_id", login_required, async function (req, res, next) {
-  try {
-    const _id = req.params._id;
-    const currentUserId = req.currentUserId;
-    const { icon, title, content, weeks } = req.body;  
-
-    const education = await ChallengeService.updateChallenge({ 
-      _id, currentUserId, title, content, icon, weeks, 
-    });
-    
-    res.json(education);
-  } catch (error) {
-    next(error);
-  }
-});
-
-challengeRouter.delete("/:_id", login_required, async function (req, res, next){
-  try {
-    const _id = req.params._id;
-    const currentUserId = req.currentUserId;
-    const challenge = await ChallengeService.deleteChallenge(_id, currentUserId);
-     
-    res.status(200).json({ message: "challenge 삭제 완료"});
-
-  } catch (error) {
-    next(error);
-  }
-});
+challengeRouter.delete("/challenges/:_id", challengeController.challengeDelete);
 
 export { challengeRouter };
